@@ -11,6 +11,8 @@ import {ValidationResponse} from "@/data/definition/valiation-response";
 import {FormValidationError} from "@/common/error/form-validation-error";
 import {NotFoundException} from "@/common/error/not-found-exception";
 import {AuctionCreateResponseDto} from "@/domain/definition/dto/auction-create-response-dto.definition";
+import {AuctionUpdateRequestDto} from "@/domain/definition/dto/auction-update-request-dto.definition";
+import {AuctionUpdateResponseDto} from "@/domain/definition/dto/auction-update-response-dto.definition";
 
 const list = async (data: AuctionListRequestDto): Promise<PaginatedResponseDto<AuctionDetailResponseDto>> => {
     const queryParams = new URLSearchParams();
@@ -144,11 +146,59 @@ const getItem = async (id: string): Promise<AuctionDetailResponseDto> => {
     return responseData
 };
 
+
+const updateItem = async (data: AuctionUpdateRequestDto): Promise<AuctionDetailResponseDto> => {
+    const formData = new FormData();
+    formData.append('_method', 'PUT');
+    formData.append('name', data.name);
+    formData.append('description', data.description);
+    formData.append('starting_price', data.starting_price.toString());
+    formData.append('end_time', data.end_time);
+    for (const id of data.retained_old_images) {
+        formData.append('retained_old_images[]', id);
+    }
+    for (const file of data.images) {
+        formData.append('images[]', file);
+    }
+
+    const response = await fetch(`${BASE_URL_API}auction/${data.id}`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authCacheDatasource.loadToken() ?? ''}`
+        },
+        body: formData
+    });
+
+    if (response.status === 422) {
+        const data: ValidationResponse<AuctionUpdateResponseDto> = await response.json();
+        const message = data.message;
+        const errors = data.errors;
+        if (errors === null || message === null) {
+            throw new UnknownError();
+        } else {
+            throw new FormValidationError(errors, message);
+        }
+    } else if (response.status === 404) {
+        throw new NotFoundException('Auction');
+    } else if (!response.ok) {
+        throw new UnknownError();
+    }
+
+    const responseObject: ApiResponse<AuctionDetailResponseDto> = await response.json();
+    const responseData = responseObject.data;
+    if (responseData === null) {
+        throw new NotFoundException('Auction');
+    }
+    return responseData
+};
+
 const auctionRemoteDataSource = {
     list,
     deleteItem,
     createItem,
     getItem,
+    updateItem,
 };
 
 export default auctionRemoteDataSource;
