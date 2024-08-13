@@ -111,10 +111,44 @@ const createItem = async (data: AuctionCreateRequestDto): Promise<AuctionDetailR
     return responseData
 };
 
+const getItem = async (id: string): Promise<AuctionDetailResponseDto> => {
+    const response = await fetch(`${BASE_URL_API}auction/${id}`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authCacheDatasource.loadToken() ?? ''}`
+        },
+    });
+
+    if (response.status === 422) {
+        const data: ValidationResponse<IdResponseDto> = await response.json();
+        const message = data.message;
+        const errors = data.errors;
+        if (errors === null || message === null) {
+            throw new UnknownError();
+        } else {
+            throw new FormValidationError(errors, message);
+        }
+    } else if (response.status === 404) {
+        throw new NotFoundException('Auction');
+    } else if (!response.ok) {
+        throw new UnknownError();
+    }
+
+    const responseObject: ApiResponse<AuctionDetailResponseDto> = await response.json();
+    const responseData = responseObject.data;
+    if (responseData === null) {
+        throw new NotFoundException('Auction');
+    }
+    return responseData
+};
+
 const auctionRemoteDataSource = {
     list,
     deleteItem,
-    createItem
+    createItem,
+    getItem,
 };
 
 export default auctionRemoteDataSource;

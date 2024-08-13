@@ -36,10 +36,15 @@ const createItemToRemote = async (data: AuctionCreateRequestDto): Promise<Auctio
     return auctionRemoteDataSource.createItem(data);
 }
 
+const getItemFromRemote = async (id: string): Promise<AuctionDetailResponseDto> => {
+    return auctionRemoteDataSource.getItem(id);
+}
+
 const auctionRepository = {
     fetchListFromRemote,
     deleteFromRemote,
-    createItemToRemote
+    createItemToRemote,
+    getItemFromRemote
 }
 
 export default auctionRepository;
