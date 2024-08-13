@@ -1,0 +1,15 @@
+.login-container {
+  @apply flex items-center justify-center min-h-screen bg-gray-100;
+}
+
+.login-form {
+  @apply bg-white p-6 rounded-lg shadow-md w-full max-w-sm;
+}
+
+.hidden-message {
+  @apply hidden text-red-500 text-sm mt-1;
+}
+
+.error-message {
+  @apply text-red-500 text-sm mt-1;
+}
