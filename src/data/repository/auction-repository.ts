@@ -1,6 +1,8 @@
 import {AuctionListRequestDto} from "@/domain/definition/dto/auction-list-request-dto.definition";
 import auctionRemoteDataSource from "@/data/datasource/remote/auction-remote-datasource";
 import {firstOrNull} from "@/common/extension/array-extension";
+import {AuctionCreateRequestDto} from "@/domain/definition/dto/auction-create-request-dto.definition";
+import {AuctionDetailResponseDto} from "@/domain/definition/dto/auction-detail-response-dto.definition";
 import {PaginatedResponseDto} from "@/domain/definition/common/paginated-list-response-dto.definition";
 import {AuctionListResponseDto} from "@/domain/definition/dto/auction-list-response-dto.definition";
 
@@ -30,9 +32,14 @@ const deleteFromRemote = async (id: string): Promise<void> => {
     await auctionRemoteDataSource.deleteItem(id);
 }
 
+const createItemToRemote = async (data: AuctionCreateRequestDto): Promise<AuctionDetailResponseDto> => {
+    return auctionRemoteDataSource.createItem(data);
+}
+
 const auctionRepository = {
     fetchListFromRemote,
     deleteFromRemote,
+    createItemToRemote
 }
 
 export default auctionRepository;
