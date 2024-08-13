@@ -4,6 +4,7 @@ import "./globals.css";
 import React from "react";
 import ToastProvider from "@/app/_toastify/toast-provider";
 import {AuthProvider} from "@/app/_providers/auth-provider";
+import Header from "@/app/_components/header";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -12,9 +13,7 @@ export const metadata: Metadata = {
     description: "Auction app",
 };
 
-export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
+export default function RootLayout({children}: Readonly<{
     children: React.ReactNode;
 }>) {
     return (
@@ -22,6 +21,7 @@ export default function RootLayout({
         <body className={inter.className}>
         <ToastProvider>
             <AuthProvider>
+                <Header></Header>
                 {children}
             </AuthProvider>
         </ToastProvider>
