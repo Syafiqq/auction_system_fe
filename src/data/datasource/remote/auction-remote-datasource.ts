@@ -193,12 +193,49 @@ const updateItem = async (data: AuctionUpdateRequestDto): Promise<AuctionDetailR
     return responseData
 };
 
+const changeAutobidStatus = async (id: string, autobid: boolean): Promise<AuctionDetailResponseDto> => {
+    const response = await fetch(`${BASE_URL_API}auction/${id}/autobid`, {
+        method: 'PATCH',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authCacheDatasource.loadToken() ?? ''}`
+        },
+        body: JSON.stringify({
+            is_autobid: autobid,
+        })
+    });
+
+    if (response.status === 422) {
+        const data: ValidationResponse<AuctionUpdateResponseDto> = await response.json();
+        const message = data.message;
+        const errors = data.errors;
+        if (errors === null || message === null) {
+            throw new UnknownError();
+        } else {
+            throw new FormValidationError(errors, message);
+        }
+    } else if (response.status === 404) {
+        throw new NotFoundException('Auction');
+    } else if (!response.ok) {
+        throw new UnknownError();
+    }
+
+    const responseObject: ApiResponse<AuctionDetailResponseDto> = await response.json();
+    const responseData = responseObject.data;
+    if (responseData === null) {
+        throw new NotFoundException('Auction');
+    }
+    return responseData
+};
+
 const auctionRemoteDataSource = {
     list,
     deleteItem,
     createItem,
     getItem,
     updateItem,
+    changeAutobidStatus,
 };
 
 export default auctionRemoteDataSource;

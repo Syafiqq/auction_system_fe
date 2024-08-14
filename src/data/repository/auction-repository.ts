@@ -45,12 +45,17 @@ const updateItemToRemote = async (data: AuctionUpdateRequestDto): Promise<Auctio
     return auctionRemoteDataSource.updateItem(data);
 }
 
+const changeAutobidStatusToRemote = async (id: string, autobid: boolean): Promise<AuctionDetailResponseDto> => {
+    return auctionRemoteDataSource.changeAutobidStatus(id, autobid);
+}
+
 const auctionRepository = {
     fetchListFromRemote,
     deleteFromRemote,
     createItemToRemote,
     getItemFromRemote,
-    updateItemToRemote
+    updateItemToRemote,
+    changeAutobidStatusToRemote,
 }
 
 export default auctionRepository;
