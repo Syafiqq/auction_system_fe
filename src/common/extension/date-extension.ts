@@ -10,3 +10,21 @@ export function convertToDD_MM_YYYY(dateString: string): string {
     // Return the date in DD-MM-YYYY format
     return `${day}-${month}-${year}`;
 }
+
+export function nullableStringToDate(dateString: string | null | undefined): Date | null {
+    if (dateString === null || dateString === undefined) {
+        return null;
+    }
+
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? null : date;
+}
+
+export function nullableStringToDateLocal(dateString: string | null | undefined): Date | null {
+    if (dateString === null || dateString === undefined) {
+        return null;
+    }
+
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? null : new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+}
