@@ -3,6 +3,7 @@ import {useRouter} from "next/navigation";
 import {PaginatedResponseDto} from "@/domain/definition/common/paginated-list-response-dto.definition";
 import {AuctionListResponseDto} from "@/domain/definition/dto/auction-list-response-dto.definition";
 import {useAuth} from "@/app/_providers/auth-provider";
+import {formatCurrency} from "@/app/_helper/currency-helper";
 
 const DashboardGallery = ({requestFetchData, queryString, data}: {
     requestFetchData: (params: URLSearchParams) => void,
@@ -53,7 +54,7 @@ const DashboardGallery = ({requestFetchData, queryString, data}: {
                         <hr className="mt-4 mb-4"/>
                         <div className="flex justify-between items-center mt-2">
                             <span
-                                className="text-lg font-semibold text-gray-700">Price: ${item.current_price?.amount ?? item.starting_price ?? 0}</span>
+                                className="text-lg font-semibold text-gray-700">Price: {formatCurrency(item.current_price?.amount ?? item.starting_price ?? 0)}</span>
                             <button
                                 className="px-4 py-2 bg-blue-500 text-white rounded-md"
                                 onClick={() => router.push(`/auction/${item.id}/place-bid`)}

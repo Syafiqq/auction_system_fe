@@ -9,6 +9,7 @@ import {IdResponseDto} from "@/domain/definition/dto/id-response-dto.definition"
 import {showToast} from "@/app/_toastify/toast-helper";
 import {NotFoundException} from "@/common/error/not-found-exception";
 import {SessionEndException} from "@/common/error/session-end-exception";
+import {formatCurrency} from "@/app/_helper/currency-helper";
 
 const DashboardTable = ({requestFetchData, queryString, data}: {
     requestFetchData: (params: URLSearchParams) => void,
@@ -101,7 +102,7 @@ const DashboardTable = ({requestFetchData, queryString, data}: {
                         </td>
                         <td className="py-2">{item.name ?? '-'}</td>
                         <td className="py-2">{item.description ?? '-'}</td>
-                        <td className="py-2 text-right w-20">${item.current_price?.amount ?? item.starting_price ?? 0}</td>
+                        <td className="py-2 text-right w-20">{formatCurrency(item.current_price?.amount ?? item.starting_price ?? 0)}</td>
                         <td className="py-2 w-56">
                             <nav>
                                 <ul className="flex space-x-4 justify-end">

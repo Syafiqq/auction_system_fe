@@ -19,6 +19,7 @@ import {AuctionListCurrentPriceResponseDto} from "@/domain/definition/dto/auctio
 import bidRepository from "@/data/repository/bid-repository";
 import {NewerBidPlacedException} from "@/common/error/newer-bid-placed-exception";
 import {SessionEndException} from "@/common/error/session-end-exception";
+import {formatCurrency} from "@/app/_helper/currency-helper";
 
 TimeAgo.addDefaultLocale(en)
 
@@ -192,13 +193,13 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
                 </div>
                 <div className="mt-4 text-center">
                     <p className="text-sm text-gray-500">Starting Price:</p>
-                    <p className="text-2xl font-bold">${data?.starting_price}</p>
+                    <p className="text-2xl font-bold">{formatCurrency(data?.starting_price ?? 0)}</p>
                 </div>
                 <div className="mt-4 text-center">
                     <p className="text-sm text-gray-500">Current Price:</p>
                     {
                         currentPrice
-                            ? <p className="text-2xl font-bold">${currentPrice.amount ?? data?.starting_price ?? 0}</p>
+                            ? <p className="text-2xl font-bold">{formatCurrency(currentPrice.amount ?? data?.starting_price ?? 0)}</p>
                             : <p className="text-2xl font-bold">-</p>
                     }
                 </div>
