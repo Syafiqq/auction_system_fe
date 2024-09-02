@@ -6,6 +6,7 @@ import {ValidationResponse} from '@/data/definition/valiation-response';
 import {UserResponseDto} from '@/domain/definition/dto/user-response-dto.definition';
 import {User} from '@/domain/definition/entity/user.definition';
 import {UnknownError} from '@/common/error/unknown-error';
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 const login = async (username: string, password: string): Promise<User> => {
     const response = await fetch(`${BASE_URL_API}auth/login`, {
@@ -28,6 +29,8 @@ const login = async (username: string, password: string): Promise<User> => {
         }
     } else if (response.status === 404) {
         throw new NotFoundException('User');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
     } else if (!response.ok) {
         throw new UnknownError();
     }

@@ -8,6 +8,7 @@ import {FormValidationError} from "@/common/error/form-validation-error";
 import {NotFoundException} from "@/common/error/not-found-exception";
 import {ApiResponse} from "@/data/definition/response.definition";
 import {UserAutobidRequestDto} from "@/domain/definition/dto/user-autobid-request-dto.definition";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 const getProfile = async (): Promise<UserDetailResponseDto> => {
     const response = await fetch(`${BASE_URL_API}profile`, {
@@ -21,6 +22,8 @@ const getProfile = async (): Promise<UserDetailResponseDto> => {
 
     if (response.status === 404) {
         throw new NotFoundException('Profile');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
     } else if (!response.ok) {
         throw new UnknownError();
     }
@@ -59,6 +62,8 @@ const updateItem = async (data: UserAutobidRequestDto): Promise<UserDetailRespon
         }
     } else if (response.status === 404) {
         throw new NotFoundException('Autobid');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
     } else if (!response.ok) {
         throw new UnknownError();
     }

@@ -13,6 +13,7 @@ import {NotFoundException} from "@/common/error/not-found-exception";
 import {AuctionCreateResponseDto} from "@/domain/definition/dto/auction-create-response-dto.definition";
 import {AuctionUpdateRequestDto} from "@/domain/definition/dto/auction-update-request-dto.definition";
 import {AuctionUpdateResponseDto} from "@/domain/definition/dto/auction-update-response-dto.definition";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 const list = async (data: AuctionListRequestDto): Promise<PaginatedResponseDto<AuctionDetailResponseDto>> => {
     const queryParams = new URLSearchParams();
@@ -36,7 +37,9 @@ const list = async (data: AuctionListRequestDto): Promise<PaginatedResponseDto<A
         },
     });
 
-    if (!response.ok) {
+    if (response.status === 401) {
+        throw new SessionEndException();
+    } else if (!response.ok) {
         throw new UnknownError();
     }
 
@@ -64,6 +67,8 @@ const deleteItem = async (id: string): Promise<void> => {
         }
     } else if (response.status === 404) {
         throw new NotFoundException('Auction');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
     } else if (!response.ok) {
         throw new UnknownError();
     }
@@ -101,6 +106,8 @@ const createItem = async (data: AuctionCreateRequestDto): Promise<AuctionDetailR
         }
     } else if (response.status === 404) {
         throw new NotFoundException('Auction');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
     } else if (!response.ok) {
         throw new UnknownError();
     }
@@ -134,6 +141,8 @@ const getItem = async (id: string): Promise<AuctionDetailResponseDto> => {
         }
     } else if (response.status === 404) {
         throw new NotFoundException('Auction');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
     } else if (!response.ok) {
         throw new UnknownError();
     }
@@ -181,6 +190,8 @@ const updateItem = async (data: AuctionUpdateRequestDto): Promise<AuctionDetailR
         }
     } else if (response.status === 404) {
         throw new NotFoundException('Auction');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
     } else if (!response.ok) {
         throw new UnknownError();
     }
@@ -217,6 +228,8 @@ const changeAutobidStatus = async (id: string, autobid: boolean): Promise<Auctio
         }
     } else if (response.status === 404) {
         throw new NotFoundException('Auction');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
     } else if (!response.ok) {
         throw new UnknownError();
     }
