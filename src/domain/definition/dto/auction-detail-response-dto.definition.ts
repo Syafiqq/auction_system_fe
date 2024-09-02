@@ -14,4 +14,10 @@ export interface AuctionDetailResponseDto {
     autobid: boolean | null;
     has_winner: boolean | null;
     winner_id: string | null;
+    winner_user: AuctionDetailUserResponseDto | null;
+}
+
+export interface AuctionDetailUserResponseDto {
+    id: number | null;
+    username: string | null;
 }
