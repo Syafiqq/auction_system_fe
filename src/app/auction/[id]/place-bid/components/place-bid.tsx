@@ -18,6 +18,7 @@ import Countdown from "@/app/auction/[id]/place-bid/components/countdown";
 import {AuctionListCurrentPriceResponseDto} from "@/domain/definition/dto/auction-list-response-dto.definition";
 import bidRepository from "@/data/repository/bid-repository";
 import {NewerBidPlacedException} from "@/common/error/newer-bid-placed-exception";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 TimeAgo.addDefaultLocale(en)
 
@@ -74,6 +75,9 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
                     setCurrentPrice(e.newerBid)
                 }
                 showToast("error", e.message);
+            } else if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof FormValidationError) {
                 showToast("error", e.message);
             } else if (e instanceof Error) {
@@ -91,7 +95,10 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
                 showToast("info", `Autobid config disabled`);
             }
         } catch (e) {
-            if (e instanceof Error) {
+            if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
+            } else if (e instanceof Error) {
                 showToast("error", e.message);
             }
         }
@@ -110,6 +117,9 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
                         setTimeout(() => router.push('/dashboard'), 1500);
                     }
                 }
+            } else if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof NotFoundException) {
                 showToast("error", e.message);
                 setTimeout(() => router.push('/dashboard'), 1500);

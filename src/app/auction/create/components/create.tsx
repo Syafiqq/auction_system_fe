@@ -11,6 +11,7 @@ import auctionRepository from "@/data/repository/auction-repository";
 import {AuctionCreateResponseDto} from "@/domain/definition/dto/auction-create-response-dto.definition";
 import {convertToDD_MM_YYYY} from "@/common/extension/date-extension";
 import {useAuth} from "@/app/_providers/auth-provider";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 const auctionSchema = z.object({
     name: z.string().min(1, 'Name is required'),
@@ -69,6 +70,9 @@ const CreateAuctionForm = () => {
                         showToast("error", bag.images[0]);
                     }
                 }
+            } else if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof Error) {
                 showToast("error", e.message);
             }

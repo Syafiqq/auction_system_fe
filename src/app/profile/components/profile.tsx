@@ -12,6 +12,7 @@ import {NotFoundException} from "@/common/error/not-found-exception";
 import {UserDetailResponseDto} from "@/domain/definition/dto/user-detail-response-dto.definition";
 import userRepository from "@/data/repository/user-repository";
 import {UserAutobidValidationRequestDto} from "@/domain/definition/dto/user-autobid-validation-request-dto.definition";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 const profileSchema = z.object({
     amount: z.number().nonnegative('Autobid amount must be a positive number'),
@@ -48,6 +49,9 @@ const EditProfile = () => {
             if (e instanceof NotFoundException) {
                 showToast("error", e.message);
                 setTimeout(() => router.push('/dashboard'), 1500);
+            } else if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof Error) {
                 showToast("error", e.message);
             }
@@ -72,6 +76,9 @@ const EditProfile = () => {
                         showToast("error", bag.percentage[0]);
                     }
                 }
+            } else if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof Error) {
                 showToast("error", e.message);
             }

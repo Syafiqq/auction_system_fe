@@ -8,6 +8,7 @@ import {FormValidationError} from "@/common/error/form-validation-error";
 import {IdResponseDto} from "@/domain/definition/dto/id-response-dto.definition";
 import {showToast} from "@/app/_toastify/toast-helper";
 import {NotFoundException} from "@/common/error/not-found-exception";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 const DashboardTable = ({requestFetchData, queryString, data}: {
     requestFetchData: (params: URLSearchParams) => void,
@@ -66,6 +67,9 @@ const DashboardTable = ({requestFetchData, queryString, data}: {
                         showToast("error", bag.id[0]);
                     }
                 }
+            } else if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof NotFoundException) {
                 showToast("error", e.message);
             } else if (e instanceof Error) {

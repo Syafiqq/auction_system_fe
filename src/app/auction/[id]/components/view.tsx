@@ -9,6 +9,7 @@ import {useRouter} from "next/navigation";
 import {AuctionDetailResponseDto} from "@/domain/definition/dto/auction-detail-response-dto.definition";
 import {FormValidationError} from "@/common/error/form-validation-error";
 import {IdResponseDto} from "@/domain/definition/dto/id-response-dto.definition";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 
 interface ViewAuctionProps {
@@ -33,6 +34,9 @@ const ViewAuction = ({id}: ViewAuctionProps) => {
                         setTimeout(() => router.push('/dashboard'), 1500);
                     }
                 }
+            } else if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof NotFoundException) {
                 showToast("error", e.message);
                 setTimeout(() => router.push('/dashboard'), 1500);
