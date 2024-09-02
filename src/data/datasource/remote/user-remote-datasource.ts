@@ -9,6 +9,9 @@ import {NotFoundException} from "@/common/error/not-found-exception";
 import {ApiResponse} from "@/data/definition/response.definition";
 import {UserAutobidRequestDto} from "@/domain/definition/dto/user-autobid-request-dto.definition";
 import {SessionEndException} from "@/common/error/session-end-exception";
+import {PaginatedResponseDto} from "@/domain/definition/common/paginated-list-response-dto.definition";
+import {AuctionWinnerRequestDto} from "@/domain/definition/dto/auction-winner-request-dto.definition";
+import {AuctionWinnerResponseDto} from "@/domain/definition/dto/auction-winner-response-dto.definition";
 
 const getProfile = async (): Promise<UserDetailResponseDto> => {
     const response = await fetch(`${BASE_URL_API}profile`, {
@@ -76,9 +79,38 @@ const updateItem = async (data: UserAutobidRequestDto): Promise<UserDetailRespon
     return responseData
 };
 
+const winningBids = async (data: AuctionWinnerRequestDto): Promise<PaginatedResponseDto<AuctionWinnerResponseDto>> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', data.page);
+    if (data.name != null) {
+        queryParams.append('name', data.name);
+    }
+    if (data.description != null) {
+        queryParams.append('description', data.description);
+    }
+
+    const response = await fetch(`${BASE_URL_API}profile/winner?${queryParams.toString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authCacheDatasource.loadToken() ?? ''}`
+        },
+    });
+
+    if (response.status === 401) {
+        throw new SessionEndException();
+    } else if (!response.ok) {
+        throw new UnknownError();
+    }
+
+    return await response.json()
+};
+
 const userRemoteDataSource = {
     getProfile,
     updateAutobidPreference: updateItem,
+    winningBids
 };
 
 export default userRemoteDataSource;
