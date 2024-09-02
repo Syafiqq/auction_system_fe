@@ -20,6 +20,8 @@ import bidRepository from "@/data/repository/bid-repository";
 import {NewerBidPlacedException} from "@/common/error/newer-bid-placed-exception";
 import {SessionEndException} from "@/common/error/session-end-exception";
 import {formatCurrency} from "@/app/_helper/currency-helper";
+import authRepository from "@/data/repository/auth-repository";
+import {User} from "@/domain/definition/entity/user.definition";
 
 TimeAgo.addDefaultLocale(en)
 
@@ -31,6 +33,7 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
     const router = useRouter();
     const authProvider = useAuth();
     const [data, setData] = useState<AuctionDetailResponseDto | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isExpired, setExpiration] = useState(false);
     const [currentPrice, setCurrentPrice] = useState<AuctionListCurrentPriceResponseDto | null>(null);
@@ -57,6 +60,10 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
 
     const handleImageClick = (image: string | null) => {
         setSelectedImage(image);
+    };
+
+    const handlePayment = () => {
+        router.push(`/auction/${id}/bill`);
     };
 
     const placeBid = async (id: string, amount: number) => {
@@ -105,6 +112,14 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
         }
     }
 
+    const loadProfile = async () => {
+        try {
+            const response = authRepository.loadProfile();
+            setUser(response);
+        } catch (_) {
+        }
+    };
+
     const fetchData = async (id: string) => {
         try {
             const response = await auctionRepository.getItemFromRemote(id);
@@ -129,6 +144,10 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
             }
         }
     };
+
+    useEffect(() => {
+        loadProfile().then()
+    }, []);
 
     useEffect(() => {
         fetchData(id).then()
@@ -191,59 +210,97 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
                         />
                     }
                 </div>
-                <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-500">Starting Price:</p>
-                    <p className="text-2xl font-bold">{formatCurrency(data?.starting_price ?? 0)}</p>
-                </div>
-                <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-500">Current Price:</p>
-                    {
-                        currentPrice
-                            ? <p className="text-2xl font-bold">{formatCurrency(currentPrice.amount ?? data?.starting_price ?? 0)}</p>
-                            : <p className="text-2xl font-bold">-</p>
-                    }
-                </div>
-                <div className="mt-4 text-center">
-                    <p className="text-sm text-gray-500">Your Bid:</p>
-                    <div className="text-center">
-                        <input
-                            type="number"
-                            value={bidAmount}
-                            onChange={handleInputChange}
-                            className="border p-2 w-48 text-center"
-                            min="1"
-                            disabled={isExpired}
-                        />
-                    </div>
-                    <button
-                        onClick={handleSubmit}
-                        className="mt-2 bg-blue-500 text-white p-2 rounded"
-                        disabled={isExpired}
-                    >
-                        Place Bid
-                    </button>
-                </div>
-                <div className="mt-2 flex flex-row items-center">
-                    <label className="ml-12 text-sm text-gray-500">
-                        <input
-                            type="checkbox"
-                            checked={autoBid}
-                            onChange={handleAutoBidChange}
-                            className="mr-2"
-                            disabled={isExpired}
-                        />
-                        Enable AutoBid
-                    </label>
-                    {
-                        <button
-                            className={`flex items-center justify-center text-white font-bold py-2 px-4 rounded-full h-full ${showAutobidConfig ? '' : 'invisible'}`}
-                            onClick={() => router.push('/profile')}
-                        >
-                            <img src="/ic_fa_gear_solid.svg" alt="Icon"
-                                 className="w-5 h-5"/>
-                        </button>
-                    }
-                </div>
+                {
+                    isExpired
+                        ? <>
+                            <div className="mt-4 text-center">
+                                <p className="text-sm text-gray-500">Final Price:</p>
+                                {
+                                    currentPrice
+                                        ?
+                                        <p className="text-2xl font-bold">{formatCurrency(currentPrice.amount ?? data?.starting_price ?? 0)}</p>
+                                        : <p className="text-2xl font-bold">-</p>
+                                }
+                            </div>
+                            <div className="mt-4 text-center">
+                                <p className="text-sm text-gray-500">Bid Winner:</p>
+                                {
+                                    currentPrice
+                                        ?
+                                        <p className="text-2xl font-bold">{data?.winner_user?.username}</p>
+                                        : <p className="text-2xl font-bold">-</p>
+                                }
+                                {
+                                    user?.id === data?.winner_user?.id
+                                        ? <>
+                                            <button
+                                                onClick={handlePayment}
+                                                className="mt-2 bg-blue-500 text-white p-2 rounded"
+                                            >
+                                                Review Bill
+                                            </button>
+                                        </>
+                                        : null
+                                }
+                            </div>
+                        </>
+                        : <>
+                            <div className="mt-4 text-center">
+                                <p className="text-sm text-gray-500">Starting Price:</p>
+                                <p className="text-2xl font-bold">{formatCurrency(data?.starting_price ?? 0)}</p>
+                            </div>
+                            <div className="mt-4 text-center">
+                                <p className="text-sm text-gray-500">Current Price:</p>
+                                {
+                                    currentPrice
+                                        ?
+                                        <p className="text-2xl font-bold">{formatCurrency(currentPrice.amount ?? data?.starting_price ?? 0)}</p>
+                                        : <p className="text-2xl font-bold">-</p>
+                                }
+                            </div>
+                            <div className="mt-4 text-center">
+                                <p className="text-sm text-gray-500">Your Bid:</p>
+                                <div className="text-center">
+                                    <input
+                                        type="number"
+                                        value={bidAmount}
+                                        onChange={handleInputChange}
+                                        className="border p-2 w-48 text-center"
+                                        min="1"
+                                        disabled={isExpired}
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleSubmit}
+                                    className="mt-2 bg-blue-500 text-white p-2 rounded"
+                                    disabled={isExpired}
+                                >
+                                    Place Bid
+                                </button>
+                            </div>
+                            <div className="mt-2 flex flex-row items-center">
+                                <label className="ml-12 text-sm text-gray-500">
+                                    <input
+                                        type="checkbox"
+                                        checked={autoBid}
+                                        onChange={handleAutoBidChange}
+                                        className="mr-2"
+                                        disabled={isExpired}
+                                    />
+                                    Enable AutoBid
+                                </label>
+                                {
+                                    <button
+                                        className={`flex items-center justify-center text-white font-bold py-2 px-4 rounded-full h-full ${showAutobidConfig ? '' : 'invisible'}`}
+                                        onClick={() => router.push('/profile')}
+                                    >
+                                        <img src="/ic_fa_gear_solid.svg" alt="Icon"
+                                             className="w-5 h-5"/>
+                                    </button>
+                                }
+                            </div>
+                        </>
+                }
             </div>
         </div>
     );
