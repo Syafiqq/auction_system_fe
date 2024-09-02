@@ -122,7 +122,10 @@ const DashboardTable = ({requestFetchData, queryString, data}: {
                                                     <li>
                                                         <button
                                                             className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full h-full"
-                                                            onClick={() => handleEdit(item.id ?? -1)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                handleEdit(item.id ?? -1)
+                                                            }}
                                                         >
                                                             <img src="/ic_fa_pen_to_square_solid.svg" alt="Icon"
                                                                  className="w-5 h-5"/>
@@ -131,7 +134,10 @@ const DashboardTable = ({requestFetchData, queryString, data}: {
                                                     <li>
                                                         <button
                                                             className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full h-full"
-                                                            onClick={() => handleDelete(item.id ?? -1)}
+                                                            onClick={ (e) => {
+                                                                e.stopPropagation()
+                                                                handleDelete(item.id ?? -1)
+                                                            }}
                                                         >
                                                             <img src="/ic_fa_trash_solid.svg" alt="Icon"
                                                                  className="w-5 h-5"/>
