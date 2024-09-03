@@ -22,6 +22,8 @@ import {SessionEndException} from "@/common/error/session-end-exception";
 import {formatCurrency} from "@/app/_helper/currency-helper";
 import authRepository from "@/data/repository/auth-repository";
 import {User} from "@/domain/definition/entity/user.definition";
+import useEcho from "@/app/_providers/echo-provider";
+import {BidWithUserResponseDto} from "@/domain/definition/dto/bid-with-user-response-dto";
 
 TimeAgo.addDefaultLocale(en)
 
@@ -32,6 +34,8 @@ interface AuctionPlaceBidProps {
 const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
     const router = useRouter();
     const authProvider = useAuth();
+    const echo = useEcho();
+
     const [data, setData] = useState<AuctionDetailResponseDto | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -167,6 +171,25 @@ const AuctionPlaceBid = ({id}: AuctionPlaceBidProps) => {
     useEffect(() => {
         setShowAutobidConfig(showAutobidConfig || autoBid)
     }, [autoBid]);
+
+    useEffect(() => {
+        if (echo && data && data.id) {
+            echo.channel('auction.' + data.id)
+                .listen('.auction.bid_placed', (e: BidWithUserResponseDto | null) => {
+                    if (e) {
+                        const newData = {
+                            ...data,
+                            current_price: {
+                                bid_at: data.current_price?.bid_at ?? '0',
+                                amount: e.amount,
+                                id: e.id,
+                            }
+                        }
+                        setData(newData);
+                    }
+                });
+        }
+    }, [echo, data]);
 
     if (authProvider?.user?.role !== 'regular') return null;
 
