@@ -14,6 +14,7 @@ import {AuctionCreateResponseDto} from "@/domain/definition/dto/auction-create-r
 import {AuctionUpdateRequestDto} from "@/domain/definition/dto/auction-update-request-dto.definition";
 import {AuctionUpdateResponseDto} from "@/domain/definition/dto/auction-update-response-dto.definition";
 import {SessionEndException} from "@/common/error/session-end-exception";
+import {AuctionBillResponseDto} from "@/domain/definition/dto/auction-bill-response-dto.definition";
 
 const list = async (data: AuctionListRequestDto): Promise<PaginatedResponseDto<AuctionDetailResponseDto>> => {
     const queryParams = new URLSearchParams();
@@ -242,6 +243,79 @@ const changeAutobidStatus = async (id: string, autobid: boolean): Promise<Auctio
     return responseData
 };
 
+const getBill = async (id: string): Promise<AuctionBillResponseDto> => {
+    const response = await fetch(`${BASE_URL_API}auction/${id}/bill`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authCacheDatasource.loadToken() ?? ''}`
+        },
+    });
+
+    if (response.status === 422) {
+        const data: ValidationResponse<IdResponseDto> = await response.json();
+        const message = data.message;
+        const errors = data.errors;
+        if (errors === null || message === null || errors === undefined || message === undefined) {
+            throw new NotFoundException('Auction');
+        } else {
+            throw new FormValidationError(errors, message);
+        }
+    } else if (response.status === 404) {
+        throw new NotFoundException('Auction');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
+    } else if (!response.ok) {
+        throw new UnknownError();
+    }
+
+    const responseObject: ApiResponse<AuctionBillResponseDto> = await response.json();
+    const responseData = responseObject.data;
+    if (responseData === null) {
+        throw new NotFoundException('Auction');
+    }
+    return responseData
+};
+
+const payBill = async (id: string, bid: string): Promise<AuctionBillResponseDto> => {
+    const formData = new FormData();
+    formData.append('bid', bid);
+
+    const response = await fetch(`${BASE_URL_API}auction/${id}/bill`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authCacheDatasource.loadToken() ?? ''}`
+        },
+        body: formData
+    });
+
+    if (response.status === 422) {
+        const data: ValidationResponse<IdResponseDto> = await response.json();
+        const message = data.message;
+        const errors = data.errors;
+        if (errors === null || message === null || errors === undefined || message === undefined) {
+            throw new NotFoundException('Auction');
+        } else {
+            throw new FormValidationError(errors, message);
+        }
+    } else if (response.status === 404) {
+        throw new NotFoundException('Auction');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
+    } else if (!response.ok) {
+        throw new UnknownError();
+    }
+
+    const responseObject: ApiResponse<AuctionBillResponseDto> = await response.json();
+    const responseData = responseObject.data;
+    if (responseData === null) {
+        throw new NotFoundException('Auction');
+    }
+    return responseData
+};
+
 const auctionRemoteDataSource = {
     list,
     deleteItem,
@@ -249,6 +323,8 @@ const auctionRemoteDataSource = {
     getItem,
     updateItem,
     changeAutobidStatus,
+    getBill,
+    payBill
 };
 
 export default auctionRemoteDataSource;
