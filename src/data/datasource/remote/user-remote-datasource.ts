@@ -12,6 +12,8 @@ import {SessionEndException} from "@/common/error/session-end-exception";
 import {PaginatedResponseDto} from "@/domain/definition/common/paginated-list-response-dto.definition";
 import {AuctionWinnerRequestDto} from "@/domain/definition/dto/auction-winner-request-dto.definition";
 import {AuctionWinnerResponseDto} from "@/domain/definition/dto/auction-winner-response-dto.definition";
+import {AuctionParticipationRequestDto} from "@/domain/definition/dto/auction-participation-request-dto.definition";
+import {AuctionParticipationResponseDto} from "@/domain/definition/dto/auction-participation-response-dto.definition";
 
 const getProfile = async (): Promise<UserDetailResponseDto> => {
     const response = await fetch(`${BASE_URL_API}profile`, {
@@ -107,10 +109,44 @@ const winningBids = async (data: AuctionWinnerRequestDto): Promise<PaginatedResp
     return await response.json()
 };
 
+const auctionParticipation = async (data: AuctionParticipationRequestDto): Promise<PaginatedResponseDto<AuctionParticipationResponseDto>> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', data.page);
+    if (data.name != null) {
+        queryParams.append('name', data.name);
+    }
+    if (data.description != null) {
+        queryParams.append('description', data.description);
+    }
+    if (data.types != null) {
+        data.types.forEach(type => {
+            queryParams.append('types[]', type);
+        });
+    }
+
+    const response = await fetch(`${BASE_URL_API}profile/auctions?${queryParams.toString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authCacheDatasource.loadToken() ?? ''}`
+        },
+    });
+
+    if (response.status === 401) {
+        throw new SessionEndException();
+    } else if (!response.ok) {
+        throw new UnknownError();
+    }
+
+    return await response.json()
+};
+
 const userRemoteDataSource = {
     getProfile,
     updateAutobidPreference: updateItem,
-    winningBids
+    winningBids,
+    auctionParticipation,
 };
 
 export default userRemoteDataSource;
