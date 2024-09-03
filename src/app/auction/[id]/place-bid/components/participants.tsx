@@ -20,6 +20,7 @@ const ParticipantsPreview = ({id}: ParticipantsPreviewProps) => {
     const router = useRouter();
     const [data, setData] = useState<PaginatedResponseDto<BidWithUserResponseDto> | null>(null);
     const [hasMore, setHasMore] = useState<boolean>(false);
+    const [list, setList] = useState<BidWithUserResponseDto[]>([]);
 
     useEffect(() => {
         fetchData().then()
@@ -27,6 +28,7 @@ const ParticipantsPreview = ({id}: ParticipantsPreviewProps) => {
 
     useEffect(() => {
         setHasMore(data?.meta?.last_page !== 1)
+        setList(data?.data ?? [])
     }, [data]);
 
     const fetchData = async () => {
@@ -74,7 +76,7 @@ const ParticipantsPreview = ({id}: ParticipantsPreviewProps) => {
                     </tr>
                     </thead>
                     <tbody>
-                    {(data?.data ?? []).map((item, index) => (
+                    {list.map((item, index) => (
                         <tr key={item.id}
                             className={`border-t ${index % 2 === 0 ? 'even:bg-white' : 'odd:bg-gray-100'}`}>
                             <td className="py-2">{item.user?.username ?? '-'}</td>
