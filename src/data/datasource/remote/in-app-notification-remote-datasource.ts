@@ -3,6 +3,7 @@ import {InAppNotificationResponseDto} from "@/domain/definition/dto/in-app-notif
 import {BASE_URL_API} from "@/common/constants";
 import authCacheDatasource from "@/data/datasource/cache/auth-cache-datasource";
 import {UnknownError} from "@/common/error/unknown-error";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 const list = async (page: number): Promise<PaginatedResponseDto<InAppNotificationResponseDto>> => {
     const queryParams = new URLSearchParams();
@@ -17,7 +18,9 @@ const list = async (page: number): Promise<PaginatedResponseDto<InAppNotificatio
         },
     });
 
-    if (!response.ok) {
+    if (response.status === 401) {
+        throw new SessionEndException();
+    } else if (!response.ok) {
         throw new UnknownError();
     }
 

@@ -58,7 +58,7 @@ export function AuthProvider({children}: AuthProviderProps) {
     const logout = () => {
         logoutUseCase.execute()
         setUser(null);
-        router.push('/login');
+        router.push('/auth');
     };
 
     if (loading) return <p>Loading...</p>;

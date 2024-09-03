@@ -8,6 +8,8 @@ import {FormValidationError} from "@/common/error/form-validation-error";
 import {IdResponseDto} from "@/domain/definition/dto/id-response-dto.definition";
 import {showToast} from "@/app/_toastify/toast-helper";
 import {NotFoundException} from "@/common/error/not-found-exception";
+import {SessionEndException} from "@/common/error/session-end-exception";
+import {formatCurrency} from "@/app/_helper/currency-helper";
 
 const DashboardTable = ({requestFetchData, queryString, data}: {
     requestFetchData: (params: URLSearchParams) => void,
@@ -66,6 +68,9 @@ const DashboardTable = ({requestFetchData, queryString, data}: {
                         showToast("error", bag.id[0]);
                     }
                 }
+            } else if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof NotFoundException) {
                 showToast("error", e.message);
             } else if (e instanceof Error) {
@@ -97,7 +102,7 @@ const DashboardTable = ({requestFetchData, queryString, data}: {
                         </td>
                         <td className="py-2">{item.name ?? '-'}</td>
                         <td className="py-2">{item.description ?? '-'}</td>
-                        <td className="py-2 text-right w-20">${item.current_price?.amount ?? item.starting_price ?? 0}</td>
+                        <td className="py-2 text-right w-20">{formatCurrency(item.current_price?.amount ?? item.starting_price ?? 0)}</td>
                         <td className="py-2 w-56">
                             <nav>
                                 <ul className="flex space-x-4 justify-end">
@@ -117,7 +122,10 @@ const DashboardTable = ({requestFetchData, queryString, data}: {
                                                     <li>
                                                         <button
                                                             className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full h-full"
-                                                            onClick={() => handleEdit(item.id ?? -1)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                handleEdit(item.id ?? -1)
+                                                            }}
                                                         >
                                                             <img src="/ic_fa_pen_to_square_solid.svg" alt="Icon"
                                                                  className="w-5 h-5"/>
@@ -126,7 +134,10 @@ const DashboardTable = ({requestFetchData, queryString, data}: {
                                                     <li>
                                                         <button
                                                             className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full h-full"
-                                                            onClick={() => handleDelete(item.id ?? -1)}
+                                                            onClick={ (e) => {
+                                                                e.stopPropagation()
+                                                                handleDelete(item.id ?? -1)
+                                                            }}
                                                         >
                                                             <img src="/ic_fa_trash_solid.svg" alt="Icon"
                                                                  className="w-5 h-5"/>

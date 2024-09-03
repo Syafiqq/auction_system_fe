@@ -12,6 +12,7 @@ import {nullableStringToDateLocal} from "@/common/extension/date-extension";
 
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 TimeAgo.addDefaultLocale(en)
 
@@ -59,7 +60,10 @@ const InAppNotificationList = () => {
             )
             setData(response);
         } catch (e) {
-            if (e instanceof Error) {
+            if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
+            } else if (e instanceof Error) {
                 showToast("error", e.message);
             }
         }

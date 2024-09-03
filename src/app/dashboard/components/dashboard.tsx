@@ -10,6 +10,7 @@ import {showToast} from "@/app/_toastify/toast-helper";
 import DashboardTable from "@/app/dashboard/components/dashboard-table";
 import {PaginatedResponseDto} from "@/domain/definition/common/paginated-list-response-dto.definition";
 import {AuctionListResponseDto} from "@/domain/definition/dto/auction-list-response-dto.definition";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 export default function Dashboard() {
     const authProvider = useAuth();
@@ -35,7 +36,10 @@ export default function Dashboard() {
             )
             setData(response);
         } catch (e) {
-            if (e instanceof Error) {
+            if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
+            } else if (e instanceof Error) {
                 showToast("error", e.message);
             }
         }

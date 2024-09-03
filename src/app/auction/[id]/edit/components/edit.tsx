@@ -16,6 +16,7 @@ import {IdResponseDto} from "@/domain/definition/dto/id-response-dto.definition"
 import {NotFoundException} from "@/common/error/not-found-exception";
 import {AuctionListImageResponseDto} from "@/domain/definition/dto/auction-list-response-dto.definition";
 import {filterNullability} from "@/common/extension/array-extension";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 const auctionSchema = z.object({
     name: z.string().min(1, 'Name is required'),
@@ -76,6 +77,9 @@ const EditAuction = ({id}: EditAuctionProps) => {
                         setTimeout(() => router.push('/dashboard'), 1500);
                     }
                 }
+            } if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof NotFoundException) {
                 showToast("error", e.message);
                 setTimeout(() => router.push('/dashboard'), 1500);
@@ -127,6 +131,9 @@ const EditAuction = ({id}: EditAuctionProps) => {
                         showToast("error", bag.images[0]);
                     }
                 }
+            } if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof Error) {
                 showToast("error", e.message);
             }

@@ -9,6 +9,8 @@ import {useRouter} from "next/navigation";
 import {AuctionDetailResponseDto} from "@/domain/definition/dto/auction-detail-response-dto.definition";
 import {FormValidationError} from "@/common/error/form-validation-error";
 import {IdResponseDto} from "@/domain/definition/dto/id-response-dto.definition";
+import {SessionEndException} from "@/common/error/session-end-exception";
+import {formatCurrency} from "@/app/_helper/currency-helper";
 
 
 interface ViewAuctionProps {
@@ -33,6 +35,9 @@ const ViewAuction = ({id}: ViewAuctionProps) => {
                         setTimeout(() => router.push('/dashboard'), 1500);
                     }
                 }
+            } else if (e instanceof SessionEndException) {
+                showToast("error", 'Session has ended. Please login again', {toastId: '401', updateId: '401'});
+                authProvider?.logout();
             } else if (e instanceof NotFoundException) {
                 showToast("error", e.message);
                 setTimeout(() => router.push('/dashboard'), 1500);
@@ -82,7 +87,7 @@ const ViewAuction = ({id}: ViewAuctionProps) => {
                     <label className="block text-sm font-medium text-gray-700">Starting Price</label>
                     <input
                         type="text"
-                        value={`$${data?.starting_price ?? ''}`}
+                        value={`${formatCurrency(data?.starting_price ?? 0)}`}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-12"
                         disabled
                     />
@@ -92,7 +97,7 @@ const ViewAuction = ({id}: ViewAuctionProps) => {
                     <label className="block text-sm font-medium text-gray-700">Current Price</label>
                     <input
                         type="text"
-                        value={`$${data?.current_price?.amount ?? data?.starting_price ?? '-'}`}
+                        value={`${formatCurrency(data?.current_price?.amount ?? data?.starting_price ?? 0)}`}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-12"
                         disabled
                     />

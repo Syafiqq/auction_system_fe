@@ -9,6 +9,7 @@ import {BidResponseDto} from "@/domain/definition/dto/bid-response-dto.definitio
 import {NewerBidPlacedException} from "@/common/error/newer-bid-placed-exception";
 import {ValidationResponseWithData} from "@/data/definition/valiation-response-with-data";
 import {BidValidationRequestDto} from "@/domain/definition/dto/bid-validation-request-dto.definition";
+import {SessionEndException} from "@/common/error/session-end-exception";
 
 const placeBid = async (data: BidRequestDto): Promise<BidResponseDto> => {
     const response = await fetch(`${BASE_URL_API}auction/${data.id.toString()}/bid`, {
@@ -38,6 +39,8 @@ const placeBid = async (data: BidRequestDto): Promise<BidResponseDto> => {
         }
     } else if (response.status === 404) {
         throw new NotFoundException('Bid');
+    } else if (response.status === 401) {
+        throw new SessionEndException();
     } else if (!response.ok) {
         throw new UnknownError();
     }
