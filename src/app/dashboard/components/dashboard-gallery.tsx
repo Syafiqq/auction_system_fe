@@ -16,6 +16,7 @@ const DashboardGallery = ({requestFetchData, queryString, data}: {
     const [page, setPage] = useState(queryString.get('page') ?? '1');
     const [hasPrev, setHasPrev] = useState(false);
     const [hasNext, setHasNext] = useState(false);
+    const [list, setList] = useState<AuctionListResponseDto[]>([]);
 
     useEffect(() => {
         if (page) queryString.set('page', page.toString());
@@ -29,6 +30,7 @@ const DashboardGallery = ({requestFetchData, queryString, data}: {
     useEffect(() => {
         setHasNext(data?.links.next !== null)
         setHasPrev(data?.links.prev !== null)
+        setList(data?.data ?? [])
     }, [data]);
 
     const prepareHandleNext = () => {
@@ -45,7 +47,7 @@ const DashboardGallery = ({requestFetchData, queryString, data}: {
     return (
         <div className="container mx-auto py-8">
             <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4`}>
-                {data?.data?.map((item) => (
+                {list.map((item) => (
                     <div key={item.id} className="border p-4 rounded-md shadow-md">
                         <img src={item.image?.url ?? '/image_not_found.png'} alt={item.name ?? ''}
                              className="w-full h-48 object-cover rounded-md"/>
