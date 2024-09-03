@@ -10,6 +10,7 @@ import {BidWithUserResponseDto} from "@/domain/definition/dto/bid-with-user-resp
 import auctionRepository from "@/data/repository/auction-repository";
 import {formatCurrency} from "@/app/_helper/currency-helper";
 import {format} from 'date-fns';
+import useEcho from "@/app/_providers/echo-provider";
 
 interface ParticipantsPreviewProps {
     id: string
@@ -18,6 +19,8 @@ interface ParticipantsPreviewProps {
 const ParticipantsPreview = ({id}: ParticipantsPreviewProps) => {
     const authProvider = useAuth();
     const router = useRouter();
+    const echo = useEcho();
+
     const [data, setData] = useState<PaginatedResponseDto<BidWithUserResponseDto> | null>(null);
     const [hasMore, setHasMore] = useState<boolean>(false);
     const [list, setList] = useState<BidWithUserResponseDto[]>([]);
@@ -30,6 +33,23 @@ const ParticipantsPreview = ({id}: ParticipantsPreviewProps) => {
         setHasMore(data?.meta?.last_page !== 1)
         setList(data?.data ?? [])
     }, [data]);
+
+    useEffect(() => {
+        if (echo && list && id) {
+            echo.channel('auction.' + id)
+                .listen('.auction.bid_placed', (e: BidWithUserResponseDto | null) => {
+                    if (e) {
+                        // prepend list with e, and remove the last element if it exceed 10 items
+                        const newList = [e, ...list];
+                        if (newList.length > 10) {
+                            newList.pop();
+                            setHasMore(true);
+                        }
+                        setList(newList)
+                    }
+                });
+        }
+    }, [echo, id, list]);
 
     const fetchData = async () => {
         try {
