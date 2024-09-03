@@ -59,7 +59,9 @@ const DashboardGallery = ({requestFetchData, queryString, data}: {
                                 className="px-4 py-2 bg-blue-500 text-white rounded-md"
                                 onClick={() => router.push(`/auction/${item.id}/place-bid`)}
                             >
-                                Bid Now!
+                                {
+                                    item.has_winner ? 'View Bid' : 'Bid Now!'
+                                }
                             </button>
                         </div>
                     </div>
