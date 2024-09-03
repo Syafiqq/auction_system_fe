@@ -7,6 +7,7 @@ import {PaginatedResponseDto} from "@/domain/definition/common/paginated-list-re
 import {AuctionListResponseDto} from "@/domain/definition/dto/auction-list-response-dto.definition";
 import {AuctionUpdateRequestDto} from "@/domain/definition/dto/auction-update-request-dto.definition";
 import {AuctionBillResponseDto} from "@/domain/definition/dto/auction-bill-response-dto.definition";
+import {BidWithUserResponseDto} from "@/domain/definition/dto/bid-with-user-response-dto";
 
 const fetchListFromRemote = async (data: AuctionListRequestDto): Promise<PaginatedResponseDto<AuctionListResponseDto>> => {
     const result = await auctionRemoteDataSource.list(data);
@@ -58,6 +59,10 @@ const payBillToRemote = async (id: string, bid: string): Promise<AuctionBillResp
     return auctionRemoteDataSource.payBill(id, bid);
 }
 
+const participantsToRemote = async (id: string, page: string): Promise<PaginatedResponseDto<BidWithUserResponseDto>> => {
+    return auctionRemoteDataSource.participants(id, page);
+}
+
 const auctionRepository = {
     fetchListFromRemote,
     deleteFromRemote,
@@ -66,7 +71,8 @@ const auctionRepository = {
     updateItemToRemote,
     changeAutobidStatusToRemote,
     getBillFromRemote,
-    payBillToRemote
+    payBillToRemote,
+    participantsToRemote,
 }
 
 export default auctionRepository;

@@ -15,6 +15,7 @@ import {AuctionUpdateRequestDto} from "@/domain/definition/dto/auction-update-re
 import {AuctionUpdateResponseDto} from "@/domain/definition/dto/auction-update-response-dto.definition";
 import {SessionEndException} from "@/common/error/session-end-exception";
 import {AuctionBillResponseDto} from "@/domain/definition/dto/auction-bill-response-dto.definition";
+import {BidWithUserResponseDto} from "@/domain/definition/dto/bid-with-user-response-dto";
 
 const list = async (data: AuctionListRequestDto): Promise<PaginatedResponseDto<AuctionDetailResponseDto>> => {
     const queryParams = new URLSearchParams();
@@ -316,6 +317,28 @@ const payBill = async (id: string, bid: string): Promise<AuctionBillResponseDto>
     return responseData
 };
 
+const participants = async (id: string, page: string): Promise<PaginatedResponseDto<BidWithUserResponseDto>> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', page);
+
+    const response = await fetch(`${BASE_URL_API}auction/${id}/participants?${queryParams.toString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${authCacheDatasource.loadToken() ?? ''}`
+        },
+    });
+
+    if (response.status === 401) {
+        throw new SessionEndException();
+    } else if (!response.ok) {
+        throw new UnknownError();
+    }
+
+    return await response.json()
+};
+
 const auctionRemoteDataSource = {
     list,
     deleteItem,
@@ -324,7 +347,8 @@ const auctionRemoteDataSource = {
     updateItem,
     changeAutobidStatus,
     getBill,
-    payBill
+    payBill,
+    participants
 };
 
 export default auctionRemoteDataSource;
