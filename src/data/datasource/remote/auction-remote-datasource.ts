@@ -61,7 +61,7 @@ const deleteItem = async (id: string): Promise<void> => {
         const data: ValidationResponse<IdResponseDto> = await response.json();
         const message = data.message;
         const errors = data.errors;
-        if (errors === null || message === null) {
+        if (errors === null || message === null || errors === undefined || message === undefined) {
             throw new UnknownError();
         } else {
             throw new FormValidationError(errors, message);
@@ -100,7 +100,7 @@ const createItem = async (data: AuctionCreateRequestDto): Promise<AuctionDetailR
         const data: ValidationResponse<AuctionCreateResponseDto> = await response.json();
         const message = data.message;
         const errors = data.errors;
-        if (errors === null || message === null) {
+        if (errors === null || message === null || errors === undefined || message === undefined) {
             throw new UnknownError();
         } else {
             throw new FormValidationError(errors, message);
@@ -135,7 +135,7 @@ const getItem = async (id: string): Promise<AuctionDetailResponseDto> => {
         const data: ValidationResponse<IdResponseDto> = await response.json();
         const message = data.message;
         const errors = data.errors;
-        if (errors === null || message === null) {
+        if (errors === null || message === null || errors === undefined || message === undefined) {
             throw new UnknownError();
         } else {
             throw new FormValidationError(errors, message);
@@ -184,7 +184,7 @@ const updateItem = async (data: AuctionUpdateRequestDto): Promise<AuctionDetailR
         const data: ValidationResponse<AuctionUpdateResponseDto> = await response.json();
         const message = data.message;
         const errors = data.errors;
-        if (errors === null || message === null) {
+        if (errors === null || message === null || errors === undefined || message === undefined) {
             throw new UnknownError();
         } else {
             throw new FormValidationError(errors, message);
@@ -222,7 +222,7 @@ const changeAutobidStatus = async (id: string, autobid: boolean): Promise<Auctio
         const data: ValidationResponse<AuctionUpdateResponseDto> = await response.json();
         const message = data.message;
         const errors = data.errors;
-        if (errors === null || message === null) {
+        if (errors === null || message === null || errors === undefined || message === undefined) {
             throw new UnknownError();
         } else {
             throw new FormValidationError(errors, message);

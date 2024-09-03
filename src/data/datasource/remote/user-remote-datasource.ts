@@ -60,7 +60,7 @@ const updateItem = async (data: UserAutobidRequestDto): Promise<UserDetailRespon
         const data: ValidationResponse<UserAutobidValidationRequestDto> = await response.json();
         const message = data.message;
         const errors = data.errors;
-        if (errors === null || message === null) {
+        if (errors === null || message === null || errors === undefined || message === undefined) {
             throw new UnknownError();
         } else {
             throw new FormValidationError(errors, message);

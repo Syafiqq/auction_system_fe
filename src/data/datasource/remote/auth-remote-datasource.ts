@@ -22,7 +22,7 @@ const login = async (username: string, password: string): Promise<User> => {
         const data: ValidationResponse<UserResponseDto> = await response.json();
         const message = data.message;
         const errors = data.errors;
-        if (errors === null || message === null) {
+        if (errors === null || message === null || errors === undefined || message === undefined) {
             throw new UnknownError();
         } else {
             throw new FormValidationError(errors, message);
